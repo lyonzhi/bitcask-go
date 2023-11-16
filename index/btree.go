@@ -12,16 +12,32 @@ type BTree struct {
 	lock *sync.RWMutex
 }
 
+func NewBtree() *BTree {
+	return &BTree{
+		tree: btree.New(32),
+		lock: new(sync.RWMutex),
+	}
+}
+
 func (bt *BTree) Put(key []byte, value *data.LogRecordPos) bool {
 	bt.lock.Lock()
 	defer bt.lock.Unlock()
-	item := Item{key: key, pos: value}
-	bt.tree.ReplaceOrInsert(&item)
+	item := &Item{key: key, pos: value}
+	bt.tree.ReplaceOrInsert(item)
 	return true
 }
 func (bt *BTree) Get(key []byte) *data.LogRecordPos {
-	return nil
+	k := &Item{key: key}
+	item := bt.tree.Get(k)
+	if item == nil {
+		return nil
+	}
+	return item.(*Item).pos
 }
 func (bt *BTree) Delete(key []byte) bool {
-	return false
+	bt.lock.Lock()
+	defer bt.lock.Unlock()
+	k := &Item{key: key}
+	item := bt.tree.Delete(k)
+	return item != nil
 }
