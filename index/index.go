@@ -8,8 +8,11 @@ import (
 )
 
 type Index interface {
+	// Put 保存数据，成功返回true，否则返回false
 	Put(key []byte, value *data.LogRecordPos) bool
+	// Get 读取key对应的value
 	Get(key []byte) *data.LogRecordPos
+	// Delete 删除数据
 	Delete(key []byte) bool
 }
 
