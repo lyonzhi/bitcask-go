@@ -29,6 +29,15 @@ type LogRecord struct {
 
 // EncodeLogRecord 编码
 // 返回编码本身和长度
+/*
+根据论文描述，记录应该是这样的（增加了type，确定数据是不是墓碑数据）：
+|crc  |type |key size|value size|key |value|
+|4字节|1字节 |8字节   |8字节      |不定|不定|
+crc: int
+type: byte
+key size: int64
+value size: int64
+*/
 func EncodeLogRecord(*LogRecord) ([]byte, int64) {
 	return nil, 0
 }
