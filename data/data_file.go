@@ -1,6 +1,12 @@
 package data
 
-import "bitcask-go/fio"
+import (
+	"bitcask-go/fio"
+	"fmt"
+	"path/filepath"
+)
+
+const dataFileSuffix string = ".data"
 
 type DataFile struct {
 	Fid         uint32        // 文件ID
@@ -9,8 +15,29 @@ type DataFile struct {
 }
 
 // OpenDataFile 打开数据文件
-func OpenDataFile(fileId uint32, filePath string) (*DataFile, error) {
-	return nil, nil
+func OpenDataFile(fileId uint32, filePath string, ioType fio.FileIOType) (*DataFile, error) {
+	// 确认文件名，文件名的格式用正则表达式表示是^\d{9}.data，示例000000001.data
+	fileName := GetFileName(fileId, filePath)
+	// 新建该文件
+	return NewDataFile(fileName, fileId, ioType)
+}
+
+func NewDataFile(fileName string, fileId uint32, ioType fio.FileIOType) (*DataFile, error) {
+	manager, err := fio.NewIOManager(fileName, ioType)
+	if err != nil {
+		return nil, err
+	}
+	d := &DataFile{
+		Fid: fileId,
+		WriteOffset: 0, // 新建文件从0开始
+		Manager: manager,
+	}
+	return d, nil
+}
+
+// GetFileName 获取文件名称
+func GetFileName(fileId uint32, filePath string) string {
+	return filepath.Join(filePath, fmt.Sprintf("%09d%s", fileId, dataFileSuffix))
 }
 
 func (file *DataFile) Close() error {
@@ -19,8 +46,10 @@ func (file *DataFile) Close() error {
 
 // Write 将数据写入数据文件中
 func (file *DataFile) Write(data []byte) error {
-	if _, err := file.Manager.Write(data); err != nil {
+	if n, err := file.Manager.Write(data); err != nil {
 		return err
+	} else {
+		file.WriteOffset += int64(n)
 	}
 	return nil
 }

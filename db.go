@@ -2,6 +2,7 @@ package bitcaskgo
 
 import (
 	"bitcask-go/data"
+	"bitcask-go/fio"
 	"bitcask-go/index"
 	"sync"
 )
@@ -129,7 +130,7 @@ func (db *DB) setActiveFile() error {
 		initialFileId = db.activeFile.Fid + 1
 	}
 	// 打开文件
-	if dataFile, err := data.OpenDataFile(initialFileId, db.option.DataFilePath); err != nil {
+	if dataFile, err := data.OpenDataFile(initialFileId, db.option.DataFilePath, fio.StandardFileIO); err != nil {
 		return err
 	} else {
 		db.activeFile = dataFile
