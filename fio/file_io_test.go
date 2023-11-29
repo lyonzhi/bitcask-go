@@ -1,6 +1,7 @@
 package fio
 
 import (
+	"encoding/binary"
 	"fmt"
 	"path/filepath"
 	"testing"
@@ -36,4 +37,17 @@ func TestRead(t *testing.T) {
 	bytes := make([]byte, 3)
 	_, err = manager.Read(bytes, 3)
 	fmt.Println(string(bytes))
+}
+
+func Test1(t *testing.T) {
+	keySize := 100
+	valueSize := 0
+
+	b := make([]byte, 13)
+	b[4] = 1
+	index := 5
+	index += binary.PutVarint(b[index:], int64(keySize))
+	index += binary.PutVarint(b[index:], int64(valueSize))
+
+	fmt.Println(0)
 }
